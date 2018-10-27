@@ -4,11 +4,14 @@
 *	This implementation doesn't use template (almost)
 */
 
+#include <utility>
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <vector>
 
 using std::string;
+using std::vector;
 
 class NonTemplated {
 public:
@@ -42,14 +45,16 @@ public:
 	}
 
 	// For pair of doubles :
-	static int f(double a, double b) {
-		return ((int)(f(b) * (f(a) + 3)) % 527);
+	static int f(pair<double, double> p) {
+		
+		return ((int)(f(std::get<1>(p)) * (f(std::get<0>(p)) + 3)) % 527);
 	}
 
 	//	For array of doubles :
-	static int f(int numberOfElements, double *v) {
+	static int f(vector<double> v) {
+		int vectorSize = v.size();
 		int res = 0;
-		for (int i = 0; i < numberOfElements; i++)
+		for (int i = 0; i < vectorSize; i++)
 			res += f(v[i]);
 		return (res % 727);
 	}
