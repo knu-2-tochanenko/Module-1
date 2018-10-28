@@ -118,6 +118,7 @@
     <ClCompile Include="source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="customassert.h" />
     <ClInclude Include="non-templated.h" />
     <ClInclude Include="templated.h" />
   </ItemGroup>

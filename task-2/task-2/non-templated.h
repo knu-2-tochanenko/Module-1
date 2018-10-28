@@ -12,6 +12,8 @@
 
 using std::string;
 using std::vector;
+using std::pair;
+using std::get;
 
 class NonTemplated {
 public:
@@ -46,8 +48,7 @@ public:
 
 	// For pair of doubles :
 	static int f(pair<double, double> p) {
-		
-		return ((int)(f(std::get<1>(p)) * (f(std::get<0>(p)) + 3)) % 527);
+		return ((int)(f(get<1>(p)) * (f(get<0>(p)) + 3)) % 527);
 	}
 
 	//	For array of doubles :
@@ -61,6 +62,9 @@ public:
 
 	//	For any other arguments :
 	template <typename T> static  int f(T t) {
+		return 7487;
+	}
+	static int f() {
 		return 7487;
 	}
 };
