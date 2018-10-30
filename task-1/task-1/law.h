@@ -7,6 +7,7 @@
 #include <vector>
 #include <map>
 #include <random>
+#include <time.h>
 
 using std::string;
 using std::vector;
@@ -19,19 +20,18 @@ using std::pair;
 
 class Law {
 protected:
-	string name;						//	Law name
-	double complexity;					/*	Law complexity. [complexity] + 1 = number of days
+	int complexity;						/*	Law complexity. [complexity] + 1 = number of days
 											which are needed to process current law */
 	double neededVotes;					//	Part of notes which are needed to process current law [0.1 - 1]
-	enum LawType { STANDART, ELECTIONS_LAW, WORKING_PROCESS_LAW };
+	enum LawType { STANDART = 0, ELECTIONS_LAW = 1, WORKING_PROCESS_LAW = 2 } lawType;
 
 	static int MaxID;
 	int ID;
 public:
-	Law(string name, double complexity, double neededVotes) {
-		this->name = name;
+	Law(int complexity, double neededVotes) {
 		this->complexity = complexity;
 		this->neededVotes = neededVotes;
+		lawType = STANDART;
 
 		this->ID = MaxID;
 		MaxID++;
@@ -39,7 +39,6 @@ public:
 	
 	//	Getters
 	LawType getType() { return STANDART; }
-	string getName() { return name; }
 	double getComplexity() { return complexity; }
 	double getNeededVotes() { return neededVotes; }
 	int getID() { return ID; }
@@ -57,33 +56,37 @@ public:
 
 int Law::MaxID = 0;
 
-class ElectionsLaw : protected Law {
+class ElectionsLaw : public Law {
 private:
 	int daysBetweenElections;			//	Days between each elections of main party
 	int deputiesFromMainConsignment;	/*	Number of deputies from main consignment,
 											higher than from another consignments */
 	int deputiesFromConsignments;		//	Number of deputies from non-main consignment
-	Consignment *mainConsignment;		//	Main consignment 
-	map<Consignment, bool> preferredConsignments;	//	Preferred consignments for this law
+	int mainConsignmentID;				//	Main consignment 
+	bool *preferredConsignments;		//	Preferred consignments for this law
 
 public:
 	//	Constructor. Only consignmentList is needed for GENERATING preferredConsignments
-	ElectionsLaw(string name, double complexity, double neededVotes, int daysBetweenElections,
-		int deputiesFromMainConsignment, int deputiesFromConsignments, Consignment *mainParty,
-		vector<Consignment> &consignmentList) : Law(name, complexity, neededVotes) {
+	ElectionsLaw(int complexity, double neededVotes, int daysBetweenElections,
+		int deputiesFromMainConsignment, int deputiesFromConsignments, int mainConsignmentID,
+		vector<Consignment> consignmentList) : Law(complexity, neededVotes) {
 
 		this->daysBetweenElections = daysBetweenElections;
 		this->deputiesFromMainConsignment = deputiesFromMainConsignment;
 		this->deputiesFromConsignments = deputiesFromConsignments;
-		this->mainConsignment = mainConsignment;
+		this->mainConsignmentID = mainConsignmentID;
 
-		//	randomly support consignments
+		lawType = ELECTIONS_LAW;
+
 		int numberOfConsignments = consignmentList.size();
+		preferredConsignments = new bool[numberOfConsignments];
+		//	randomly support consignments
+		srand(clock());
 		for (int i = 0; i < numberOfConsignments; i++)
-			if (((rand() % 3) != 0) || (this->mainConsignment->getName() == consignmentList[i].getName()))
-				preferredConsignments.insert(pair<Consignment, bool>(consignmentList[i], true));
+			if (((rand() % 3) != 0) || (this->mainConsignmentID == consignmentList[i].getID()))
+				preferredConsignments[i] = true;
 			else
-				preferredConsignments.insert(pair<Consignment, bool>(consignmentList[i], true));
+				preferredConsignments[i] = false;
 	}
 	
 	//	More getters
@@ -91,24 +94,27 @@ public:
 	int getDaysBetweenElections() { return daysBetweenElections; }
 	int getDeputiesFromMainConsignment() { return deputiesFromMainConsignment; }
 	int getDeputiesFromConsignment() { return deputiesFromConsignments; }
-	Consignment* getMainConsignment() { return mainConsignment; }
+	int getMainConsignment() { return mainConsignmentID; }
 
 	//	Check whether specific Consignment is preferred for this law
-	bool isPreferred(Consignment *consignment) {
-		return preferredConsignments[*consignment];
+	bool isPreferred(Consignment consignment) {
+		return preferredConsignments[consignment.getID()];
 	}
 };
 
-class WorkingProcessLaw : protected Law {
+class WorkingProcessLaw : public Law {
 private:
-	double newComplexityFactor;			//	A number from [0.1 - 5] which defines days for each law to be processed
-	double newNeededVotesFactor;		//	A number from [0.1 - 5] which defines number of 
+	double newComplexityFactor;			//	A number from [0.1 - 2] which defines days for each law to be processed
+	double newNeededVotesFactor;		//	A number from [0.1 - 0.9] which defines number of votes which are needed
 public:
 
-	WorkingProcessLaw(string name, double complexity, double neededVotes,
-		double newComplexityFactor, double newNeededVotesFactor) : Law(name, complexity, neededVotes) {
+	WorkingProcessLaw(int complexity, double neededVotes,
+		double newComplexityFactor, double newNeededVotesFactor) : Law(complexity, neededVotes) {
 		this->newComplexityFactor = newComplexityFactor;
 		this->newNeededVotesFactor = newNeededVotesFactor;
+
+		lawType = WORKING_PROCESS_LAW;
+
 	}
 
 	//	Even more getters!
