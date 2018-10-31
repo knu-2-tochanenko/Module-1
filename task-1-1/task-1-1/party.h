@@ -11,7 +11,7 @@ private:
 	int ID;
 	static int MaxID;
 
-	vector<Deputy> deputiesList;	//	List of deputies
+	vector<Deputy*> deputiesList;	//	List of deputies
 	bool *lawCoef;					//	true - law is preferred, if else - is not
 	bool *electCoef;				//	true - law is preferred, if else - is not
 	bool *workCoef;					//	true - law is preferred, if else - is not
@@ -41,25 +41,38 @@ public:
 	//	The third stage of initialization
 	void generateDeputies(int deputiesNumber, int lawsSize, int electSize, int workSize) {
 		for (int i = 0; i < deputiesNumber; i++) {
-			Deputy newDeputy(lawsSize, electSize, workSize);
+			Deputy *newDeputy = new Deputy(lawsSize, electSize, workSize);
 			deputiesList.push_back(newDeputy);
 		}
 	}
 
 	//	Get how many deputies have voted for election
-	int electVotesNumber(int lawID, int mainPartyID, int lawsSize, bool* lawsList, int electSize, bool *electList, int workSize, bool *workList) {
+	int electVotesNumber(int lawID, int mainPartyID, int lawsSize, int electSize, int workSize, Party *votedParty) {
 		int res = 0;
+		
+		//	Get preferred laws for voted party
+		bool* lawsList;		lawsList	= new bool[lawsSize];
+		bool* electList;	electList	= new bool[electSize];
+		bool* workList;		workList	= new bool[workSize];
+		for (int i = 0; i < lawsSize; i++)
+			lawsList[i] = votedParty->standardLawVote(i);
+		for (int i = 0; i < electSize; i++)
+			electList[i] = votedParty->electLawVote(i);
+		for (int i = 0; i < workSize; i++)
+			workList[i] = votedParty->workLawVote(i);
+
 		int deputiesSize = deputiesList.size();
 		for (int i = 0; i < deputiesSize; i++)
-			if (deputiesList[i].voteForParty(lawID, mainPartyID, lawsSize, lawsList, electSize, electList, workSize, workList));
+			if (deputiesList[i]->voteForParty(lawID, mainPartyID, lawsSize, lawsList, electSize, electList, workSize, workList));
 				res++;
 		return res;
 	}
 
 	//	Adds another randomly generated deputy
 	bool addDeputy(int lawsSize, int electSize, int workSize) {
-		Deputy newDeputy(lawsSize, electSize, workSize);
+		Deputy *newDeputy = new Deputy(lawsSize, electSize, workSize);
 		deputiesList.push_back(newDeputy);
+		return true;
 	}
 
 	//	Removes least favorite deputy
@@ -77,13 +90,13 @@ public:
 		//	Check for every deputy for similar votes
 		for (int i = 0; i < deputySize; i++) {
 			for (int j = 0; j < lawsSize; j++)
-				if (deputiesList[i].standardLawVote(j) && lawCoef[j])
+				if (deputiesList[i]->standardLawVote(j) && lawCoef[j])
 					similarCoef[i]++;
 			for (int j = 0; j < electSize; j++)
-				if (deputiesList[i].electLawVote(j) && electCoef[j])
+				if (deputiesList[i]->electLawVote(j) && electCoef[j])
 					similarCoef[i]++;
 			for (int j = 0; j < workSize; j++)
-				if (deputiesList[i].workLawVote(j) && workCoef[j])
+				if (deputiesList[i]->workLawVote(j) && workCoef[j])
 					similarCoef[i]++;
 		}
 
@@ -111,3 +124,5 @@ public:
 	bool* getWorkCoef()		{ return workCoef;	}
 
 };
+
+int Party::MaxID = 0;

@@ -53,6 +53,8 @@ private:
 		for (int i = 0; i < partiesSize; i++) {
 			Party *party = new Party();
 			partyList.push_back(party);
+
+			partyAvail[i] = true;
 		}
 	}
 
@@ -105,9 +107,9 @@ private:
 		}
 	}
 
-	bool generateDeputies(int deputiesSize) {
+	void generateDeputies(int deputiesSize) {
 		srand(clock());
-		for (int i = 0; i < deputiesSize; i++) {
+		for (int i = 0; i < MAX_PARTIES; i++) {
 			if (i == mainPartyID)
 				partyList[i]->generateDeputies(this->mainPartyDeputies, standardLawList.size(), electionLawList.size(), workingLawList.size());
 			else
@@ -132,7 +134,7 @@ public:
 		generateDeputies(singlePartyDeputies);
 	}
 
-	bool workDay() {
+	void workDay() {
 		srand(clock());
 		vector< pair<int, int> > pendingStandard;	//	<Law ID, number of processed days>
 		vector< pair<int, int> > pendingWorking;	//	<Law ID, number of processed days>
@@ -280,8 +282,8 @@ public:
 		int totalVotes = 0;
 		int newMainPartyID = electionLawList[electSize]->getMainParty();
 		for (int i = 0; i < MAX_PARTIES; i++) {
-			totalVotes += partyList[i]->electVotesNumber(electLaw, newMainPartyID, standardLawList.size(), partyList[newMainPartyID]->getLawCoef(),
-				electionLawList.size(), partyList[newMainPartyID]->getElectCoef(), workingLawList.size(), partyList[newMainPartyID]->getWorkCoef());
+			totalVotes += partyList[i]->electVotesNumber(electLaw, newMainPartyID, standardLawList.size(),
+				electionLawList.size(), workingLawList.size(), partyList[newMainPartyID]);
 		}
 
 		int deputiesSize = mainPartyDeputies + singlePartyDeputies * (MAX_DEPUTIES - 1);
