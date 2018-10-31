@@ -25,7 +25,6 @@ public:
 	}
 	~Base2() {
 		S = S / 2 - N;
-		cout << "Base2 : " << S << endl;
 	}
 	virtual type getType() { return BASE2; }
 	virtual void foo() = 0;
@@ -43,7 +42,6 @@ public:
 	}
 	~Gamma() {
 		S = S - N;
-		cout << "Gamma : " << S << endl;
 	}
 	virtual type getType() { return GAMMA; }
 	void foo() override {
@@ -63,7 +61,6 @@ public:
 	}
 	~Delta() {
 		S = S + 3 * N - 27;
-		cout << "Delta : " << S << endl;
 	}
 	virtual type getType() { return DELTA; }
 	void foo() override {
@@ -88,7 +85,6 @@ public:
 	}
 	~Base1() {
 		S = 3*S + N + 27;
-		cout << "Base1 : " << S << endl;
 	}
 	virtual type getType() { return BASE1; }
 	virtual void foo() = 0;
@@ -125,7 +121,6 @@ public:
 
 	~Alpha() {
 		S = S - 2 * N + 5;
-		cout << "Alpha : " << S << endl;
 	}
 	virtual type getType() { return ALPHA; }
 	void foo() override {
@@ -151,7 +146,6 @@ public:
 
 	~Beta() {
 		S = S - N;
-		cout << "Beta : " << S << endl;
 	}
 	virtual type getType() { return BETA; }
 	void foo() override {
@@ -163,7 +157,6 @@ int Beta::MaxN = 1;
 double predictValue(vector<Base*> vec) {
 	double res = 0.0;
 	int numberOfElements[7] = { 0, 0, 0, 0, 0, 0, 0 };
-	cout << "FUNCTION:\n";
 	int vecSize = vec.size();
 
 	for (int i = 0; i < vecSize; i++) {
@@ -200,44 +193,34 @@ double predictValue(vector<Base*> vec) {
 		case BASE1:
 			res = 3 * res + numberOfElements[BASE1] + 27;
 			numberOfElements[BASE1]--;
-			cout << i << " : " << res << endl;
 			break;
 		case BASE2:
 			res = res / 2 - numberOfElements[BASE2];
 			numberOfElements[BASE2]--;
-			cout << i << " : " << res << endl;
 			break;
 		case ALPHA:
 			res = res - 2 * numberOfElements[ALPHA] + 5;
 			numberOfElements[ALPHA]--;
-			cout << i << " : " << res << endl;
 			res = 3 * res + numberOfElements[BASE1] + 27;
 			numberOfElements[BASE1]--;
-			cout << i << " : " << res << endl;
 			break;
 		case BETA:
 			res = res - numberOfElements[BETA];
 			numberOfElements[BETA]--;
-			cout << i << " : " << res << endl;
 			res = 3 * res + numberOfElements[BASE1] + 27;
 			numberOfElements[BASE1]--;
-			cout << i << " : " << res << endl;
 			break;
 		case GAMMA:
 			res = res - numberOfElements[GAMMA];
 			numberOfElements[GAMMA]--;
-			cout << i << " : " << res << endl;
 			res = res / 2 - numberOfElements[BASE2];
 			numberOfElements[BASE2];
-			cout << i << " : " << res << endl;
 			break;
 		case DELTA:
 			res = res + 3 * numberOfElements[DELTA] - 27;
 			numberOfElements[DELTA]--;
-			cout << i << " : " << res << endl;
 			res = res / 2 - numberOfElements[BASE2];
 			numberOfElements[BASE2]--;
-			cout << i << " : " << res << endl;
 			break;
 		default:
 			break;
@@ -267,11 +250,8 @@ int main() {
 
 		cout << predictValue(vec) << " EXPECTED!\n";
 	}
-	
 
-	
-
-	cout << S << "GOT!\n";
+	cout << S << " GOT!\n";
 	system("pause");
 	return 0;
 }
